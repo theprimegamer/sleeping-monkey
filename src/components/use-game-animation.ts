@@ -1,77 +1,90 @@
-import { useCallback, useRef, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { Position } from "../App";
-import { GAME_AREA_POSITIONS } from "./GameArea";
+
+export enum DartAnimationState {
+  Idle,
+  DartLaunched,
+  Paused,
+}
+
+export enum MonkeyAnimationState {
+  Idle,
+  Falling,
+  Running,
+}
 
 export const useGameAnimation = (
-  canvasRef: React.MutableRefObject<HTMLCanvasElement | null>
+  dartState: DartAnimationState,
+  dartPosition: Position,
+  dartVelocity: Position,
+  setDartPosition: Dispatch<SetStateAction<Position>>,
+  setDartVelocity: Dispatch<SetStateAction<Position>>
 ) => {
   const animationRef = useRef<number | undefined>(undefined);
   const latestTimeStamp = useRef<number | undefined>(undefined);
-  var [dartPosition, setDartPosition] = useState<Position>({
-    x: GAME_AREA_POSITIONS.hunterX,
-    y: GAME_AREA_POSITIONS.hunterY,
-  });
 
   const gravity = 9.8; // m/s
 
-  const drawDart = (context: CanvasRenderingContext2D, dp: Position) => {
-    context.save();
-    context.translate(dp.x, dp.y);
-    context.fillStyle = "#e6e6e6";
-    context.beginPath();
-    context.ellipse(0, 0, 5, 5, 0, 0, 2 * Math.PI);
-    context.fill();
-    context.restore();
-  };
-
-  const animate = (timeStamp: number, position: Position) => {
+  const animate = (
+    timeStamp: number,
+    tDartPosition?: Position,
+    tDartVelocity?: Position
+  ) => {
     const timeDelta = timeStamp - (latestTimeStamp.current || timeStamp); // ms
-
-    const canvas = canvasRef.current;
-    if (canvas) {
-      const context = canvas!.getContext("2d")!;
-      drawDart(context, position);
+    console.warn(timeDelta);
+    if (tDartPosition === undefined) {
+      tDartPosition = dartPosition;
+    }
+    if (tDartVelocity === undefined) {
+      tDartVelocity = dartVelocity;
     }
 
-    setDartPosition((prev) => {
-      console.log("Setting position");
-      const next = {
-        x: prev.x + 0.1 * timeDelta,
-        y: prev.y - (gravity / 1000) * timeDelta,
+    if (dartState === DartAnimationState.DartLaunched) {
+      const nextPosition: Position = {
+        x: tDartPosition.x + tDartVelocity.x,
+        y: tDartPosition.y - tDartVelocity.y,
       };
-      return next;
-    });
-    console.log(position);
+
+      const nextVelocity: Position = {
+        x: tDartVelocity.x,
+        y: tDartVelocity.y - gravity * 0.01,
+      };
+      console.log(nextPosition);
+      setDartPosition(nextPosition);
+      setDartVelocity(nextVelocity);
+      tDartPosition = nextPosition;
+      tDartVelocity = nextVelocity;
+    }
 
     latestTimeStamp.current = timeStamp;
     animationRef.current = window.requestAnimationFrame((ts) =>
-      animate(ts, {
-        x: position.x + 0.1 * timeDelta,
-        y: position.y - (gravity / 1000) * timeDelta,
-      })
+      animate(ts, tDartPosition, tDartVelocity)
     );
   };
 
   const startAnimation = () => {
     if (!animationRef.current) {
-      console.log("Starting animation!");
-      animationRef.current = window.requestAnimationFrame((ts) =>
-        animate(ts, dartPosition)
-      );
+      animationRef.current = window.requestAnimationFrame((ts) => animate(ts));
     }
   };
 
   const stopAnimation = () => {
     if (animationRef.current) {
-      console.log("Stopping animation");
       window.cancelAnimationFrame(animationRef.current);
       animationRef.current = undefined;
       latestTimeStamp.current = undefined;
     }
   };
 
-  return {
-    startAnimation,
-    stopAnimation,
-  };
+  useEffect(() => {
+    if (
+      dartState === DartAnimationState.DartLaunched &&
+      !animationRef.current
+    ) {
+      startAnimation();
+    }
+    if (dartState !== DartAnimationState.DartLaunched && animationRef.current) {
+      stopAnimation();
+    }
+  }, [dartState, animationRef.current]);
 };

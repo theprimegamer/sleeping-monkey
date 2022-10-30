@@ -1,9 +1,12 @@
 import React, { useEffect } from "react";
+import { Position } from "../App";
 import { GAME_AREA_POSITIONS } from "./GameArea";
 
 export const useGameCanvas = (
   canvasRef: React.MutableRefObject<HTMLCanvasElement | null>,
-  launchAngle: number
+  launchAngle: number,
+  dartPosition: Position,
+  showDart: boolean
 ) => {
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -55,9 +58,23 @@ export const useGameCanvas = (
       context.restore();
     };
 
+    const drawDart = (context: CanvasRenderingContext2D) => {
+      console.log(dartPosition);
+      context.save();
+      context.translate(dartPosition.x, dartPosition.y);
+      context.fillStyle = "#e6e6e6";
+      context.beginPath();
+      context.ellipse(0, 0, 5, 5, 0, 0, 2 * Math.PI);
+      context.fill();
+      context.restore();
+    };
+
     drawTree(context);
     drawHunter(context);
     drawGround(context);
+    if (showDart) {
+      drawDart(context);
+    }
     drawTargetting(context);
 
     return () => {
@@ -69,5 +86,5 @@ export const useGameCanvas = (
         GAME_AREA_POSITIONS.height
       );
     };
-  }, [launchAngle]);
+  }, [launchAngle, dartPosition]);
 };

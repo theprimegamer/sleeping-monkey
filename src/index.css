@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 .btn {
-  @apply font-bold py-2 px-4 rounded;
-  min-width: 48px
+  @apply font-bold py-2 px-4 rounded border;
+  min-width: 48px;
 }
 .btn-blue {
   @apply bg-blue-500 text-white;

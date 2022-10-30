@@ -45,14 +45,12 @@ function App() {
           containerClass="flex-grow"
         ></NumberController>
       </div>
-      <div className="flex justify-center">
-        <GameArea
-          launchAngle={launchAngle}
-          velocity={velocity}
-          setPosition={setCursorPosition}
-          setLaunchAngle={setLaunchAngle}
-        ></GameArea>
-      </div>
+      <GameArea
+        launchAngle={launchAngle}
+        velocity={velocity}
+        setPosition={setCursorPosition}
+        setLaunchAngle={setLaunchAngle}
+      ></GameArea>
     </div>
   );
 }
