@@ -14,9 +14,12 @@ export const GAME_AREA_POSITIONS = {
   realHeight: 5,
 };
 
-export const INITIAL_DART_POSITION = {
-  x: GAME_AREA_POSITIONS.hunterX,
-  y: GAME_AREA_POSITIONS.hunterY,
+export const GAME_AREA_CONVERSIONS = {
+  realToGameX:
+    (GAME_AREA_POSITIONS.width - GAME_AREA_POSITIONS.hunterX) /
+    GAME_AREA_POSITIONS.realWidth,
+  realToGameY: GAME_AREA_POSITIONS.hunterY / GAME_AREA_POSITIONS.realHeight,
+  msToSec: 1 / 1_000,
 };
 
 type GameAreaProps = {
@@ -34,9 +37,10 @@ export const GameArea: React.FC<GameAreaProps> = ({
 }) => {
   const canvasRef = useRef<null | HTMLCanvasElement>(null);
   const mouseTargetRef = useRef<null | HTMLDivElement>(null);
-  const [dartPosition, setDartPosition] = useState<Position>(
-    INITIAL_DART_POSITION
-  );
+  const [dartPosition, setDartPosition] = useState<Position>({
+    x: 0,
+    y: 0,
+  });
   const [dartVelocity, setDartVelocity] = useState<Position>({
     x: 0,
     y: 0,
@@ -61,13 +65,14 @@ export const GameArea: React.FC<GameAreaProps> = ({
     setDartPosition,
     setDartVelocity
   );
-  const { handleLaunch, handlePause, handleReset } = useGameAreaControls(
-    launchAngle,
-    velocity,
-    setDartState,
-    setDartPosition,
-    setDartVelocity
-  );
+  const { handleLaunch, handlePause, handleContinue, handleReset } =
+    useGameAreaControls(
+      launchAngle,
+      velocity,
+      setDartState,
+      setDartPosition,
+      setDartVelocity
+    );
 
   return (
     <>
@@ -86,7 +91,7 @@ export const GameArea: React.FC<GameAreaProps> = ({
           </button>
         )}
         {dartState === DartAnimationState.Paused && (
-          <button className="btn btn-blue" onClick={handleLaunch}>
+          <button className="btn btn-blue" onClick={handleContinue}>
             Contine
           </button>
         )}

@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
 import { Position } from "../App";
-import { INITIAL_DART_POSITION } from "./GameArea";
+import { GAME_AREA_CONVERSIONS, GAME_AREA_POSITIONS } from "./GameArea";
 import { DartAnimationState } from "./use-game-animation";
 
 export const useGameAreaControls = (
@@ -13,8 +13,14 @@ export const useGameAreaControls = (
   const handleLaunch = () => {
     setDartState(DartAnimationState.DartLaunched);
 
-    const y = Math.sin((launchAngle * Math.PI) / 180) * velocity;
-    const x = Math.cos((launchAngle * Math.PI) / 180) * velocity;
+    const y =
+      Math.sin((launchAngle * Math.PI) / 180) *
+      velocity *
+      GAME_AREA_CONVERSIONS.realToGameY;
+    const x =
+      Math.cos((launchAngle * Math.PI) / 180) *
+      velocity *
+      GAME_AREA_CONVERSIONS.realToGameX;
     setDartVelocity({
       x,
       y,
@@ -25,14 +31,19 @@ export const useGameAreaControls = (
     setDartState(DartAnimationState.Paused);
   };
 
+  const handleContinue = () => {
+    setDartState(DartAnimationState.DartLaunched);
+  };
+
   const handleReset = () => {
     setDartState(DartAnimationState.Idle);
-    setDartPosition(INITIAL_DART_POSITION);
+    setDartPosition({ x: 0, y: 0 });
   };
 
   return {
     handleLaunch,
     handlePause,
+    handleContinue,
     handleReset,
   };
 };

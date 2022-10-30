@@ -1,5 +1,6 @@
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { Position } from "../App";
+import { GAME_AREA_CONVERSIONS } from "./GameArea";
 
 export enum DartAnimationState {
   Idle,
@@ -31,7 +32,6 @@ export const useGameAnimation = (
     tDartVelocity?: Position
   ) => {
     const timeDelta = timeStamp - (latestTimeStamp.current || timeStamp); // ms
-    console.warn(timeDelta);
     if (tDartPosition === undefined) {
       tDartPosition = dartPosition;
     }
@@ -41,13 +41,15 @@ export const useGameAnimation = (
 
     if (dartState === DartAnimationState.DartLaunched) {
       const nextPosition: Position = {
-        x: tDartPosition.x + tDartVelocity.x,
-        y: tDartPosition.y - tDartVelocity.y,
+        x: tDartPosition.x + (tDartVelocity.x * timeDelta) / 1000,
+        y: tDartPosition.y - (tDartVelocity.y * timeDelta) / 1000,
       };
 
       const nextVelocity: Position = {
         x: tDartVelocity.x,
-        y: tDartVelocity.y - gravity * 0.01,
+        y:
+          tDartVelocity.y -
+          (gravity * GAME_AREA_CONVERSIONS.realToGameY * timeDelta) / 1000,
       };
       console.log(nextPosition);
       setDartPosition(nextPosition);

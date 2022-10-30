@@ -59,9 +59,11 @@ export const useGameCanvas = (
     };
 
     const drawDart = (context: CanvasRenderingContext2D) => {
-      console.log(dartPosition);
       context.save();
-      context.translate(dartPosition.x, dartPosition.y);
+      context.translate(
+        GAME_AREA_POSITIONS.hunterX + dartPosition.x,
+        GAME_AREA_POSITIONS.hunterY + dartPosition.y
+      );
       context.fillStyle = "#e6e6e6";
       context.beginPath();
       context.ellipse(0, 0, 5, 5, 0, 0, 2 * Math.PI);
