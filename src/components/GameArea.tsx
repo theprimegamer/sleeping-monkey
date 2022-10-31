@@ -11,7 +11,7 @@ export const GAME_AREA_POSITIONS = {
   hunterX: 100,
   hunterY: 500,
   realWidth: 10,
-  realHeight: 5,
+  realHeight: 10,
 };
 
 export const GAME_AREA_CONVERSIONS = {
@@ -19,6 +19,10 @@ export const GAME_AREA_CONVERSIONS = {
     (GAME_AREA_POSITIONS.width - GAME_AREA_POSITIONS.hunterX) /
     GAME_AREA_POSITIONS.realWidth,
   realToGameY: GAME_AREA_POSITIONS.hunterY / GAME_AREA_POSITIONS.realHeight,
+  gameToRealX:
+    GAME_AREA_POSITIONS.realWidth /
+    (GAME_AREA_POSITIONS.width - GAME_AREA_POSITIONS.hunterX),
+  gameToRealY: GAME_AREA_POSITIONS.realHeight / GAME_AREA_POSITIONS.hunterY,
   msToSec: 1 / 1_000,
 };
 
@@ -123,8 +127,6 @@ export const GameArea: React.FC<GameAreaProps> = ({
           ></canvas>
         </div>
       </div>
-      <div>{JSON.stringify(dartPosition)}</div>
-      <div>{JSON.stringify(dartVelocity)}</div>
     </>
   );
 };

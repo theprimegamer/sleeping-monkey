@@ -51,7 +51,6 @@ export const useGameAnimation = (
           tDartVelocity.y -
           (gravity * GAME_AREA_CONVERSIONS.realToGameY * timeDelta) / 1000,
       };
-      console.log(nextPosition);
       setDartPosition(nextPosition);
       setDartVelocity(nextVelocity);
       tDartPosition = nextPosition;
