@@ -12,6 +12,7 @@ export enum MonkeyAnimationState {
   Idle,
   Falling,
   Running,
+  Paused,
 }
 
 export const useGameAnimation = (
@@ -19,7 +20,12 @@ export const useGameAnimation = (
   dartPosition: Position,
   dartVelocity: Position,
   setDartPosition: Dispatch<SetStateAction<Position>>,
-  setDartVelocity: Dispatch<SetStateAction<Position>>
+  setDartVelocity: Dispatch<SetStateAction<Position>>,
+  monkeyState: MonkeyAnimationState,
+  monkeyPosition: Position,
+  monkeyVelocity: Position,
+  setMonkeyPosition: Dispatch<SetStateAction<Position>>,
+  setMonkeyVelocity: Dispatch<SetStateAction<Position>>
 ) => {
   const animationRef = useRef<number | undefined>(undefined);
   const latestTimeStamp = useRef<number | undefined>(undefined);
@@ -29,7 +35,9 @@ export const useGameAnimation = (
   const animate = (
     timeStamp: number,
     tDartPosition?: Position,
-    tDartVelocity?: Position
+    tDartVelocity?: Position,
+    tMonkeyPosition?: Position,
+    tMonkeyVelocity?: Position
   ) => {
     const timeDelta = timeStamp - (latestTimeStamp.current || timeStamp); // ms
     if (tDartPosition === undefined) {
@@ -38,11 +46,17 @@ export const useGameAnimation = (
     if (tDartVelocity === undefined) {
       tDartVelocity = dartVelocity;
     }
+    if (tMonkeyPosition === undefined) {
+      tMonkeyPosition = monkeyPosition;
+    }
+    if (tMonkeyVelocity === undefined) {
+      tMonkeyVelocity = monkeyVelocity;
+    }
 
     if (dartState === DartAnimationState.DartLaunched) {
       const nextPosition: Position = {
         x: tDartPosition.x + (tDartVelocity.x * timeDelta) / 1000,
-        y: tDartPosition.y - (tDartVelocity.y * timeDelta) / 1000,
+        y: tDartPosition.y + (tDartVelocity.y * timeDelta) / 1000,
       };
 
       const nextVelocity: Position = {
@@ -57,9 +71,33 @@ export const useGameAnimation = (
       tDartVelocity = nextVelocity;
     }
 
+    if (monkeyState === MonkeyAnimationState.Falling) {
+      const nextPosition: Position = {
+        x: tMonkeyPosition.x + (tMonkeyVelocity.x * timeDelta) / 1000,
+        y: tMonkeyPosition.y + (tMonkeyVelocity.y * timeDelta) / 1000,
+      };
+      const nextVelocity: Position = {
+        x: tMonkeyVelocity.x,
+        y:
+          tMonkeyVelocity.y -
+          (gravity * GAME_AREA_CONVERSIONS.realToGameY * timeDelta) / 1000,
+      };
+
+      setMonkeyPosition(nextPosition);
+      setMonkeyVelocity(nextVelocity);
+      tMonkeyPosition = nextPosition;
+      tMonkeyVelocity = nextVelocity;
+    }
+
     latestTimeStamp.current = timeStamp;
     animationRef.current = window.requestAnimationFrame((ts) =>
-      animate(ts, tDartPosition, tDartVelocity)
+      animate(
+        ts,
+        tDartPosition,
+        tDartVelocity,
+        tMonkeyPosition,
+        tMonkeyVelocity
+      )
     );
   };
 

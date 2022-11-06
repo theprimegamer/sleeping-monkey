@@ -1,7 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Position } from "../App";
 import { useGameAreaControls } from "./use-game-area-controls";
-import { DartAnimationState, useGameAnimation } from "./use-game-animation";
+import {
+  DartAnimationState,
+  MonkeyAnimationState,
+  useGameAnimation,
+} from "./use-game-animation";
 import { useGameCanvas } from "./use-game-canvas";
 import { useGameMouseEvents } from "./use-game-mouse-events";
 
@@ -10,6 +14,8 @@ export const GAME_AREA_POSITIONS = {
   height: 600,
   hunterX: 100,
   hunterY: 500,
+  monkeyX: 575, // relative to hunter as 0,0
+  monkeyY: 450, // relative to hunter as 0,0
   realWidth: 10,
   realHeight: 10,
 };
@@ -50,11 +56,21 @@ export const GameArea: React.FC<GameAreaProps> = ({
     y: 0,
   });
   const [dartState, setDartState] = useState(DartAnimationState.Idle);
+  const [monkeyPosition, setMonkeyPosition] = useState<Position>({
+    x: GAME_AREA_POSITIONS.monkeyX,
+    y: GAME_AREA_POSITIONS.monkeyY,
+  });
+  const [monkeyVelocity, setMonkeyVelocity] = useState<Position>({
+    x: 0,
+    y: 0,
+  });
+  const [monkeyState, setMonkeyState] = useState(MonkeyAnimationState.Idle);
 
   useGameCanvas(
     canvasRef,
     launchAngle,
     dartPosition,
+    monkeyPosition,
     dartState !== DartAnimationState.Idle
   );
   const { handleMouseClick, handleMouseMove } = useGameMouseEvents(
@@ -67,7 +83,12 @@ export const GameArea: React.FC<GameAreaProps> = ({
     dartPosition,
     dartVelocity,
     setDartPosition,
-    setDartVelocity
+    setDartVelocity,
+    monkeyState,
+    monkeyPosition,
+    monkeyVelocity,
+    setMonkeyPosition,
+    setMonkeyVelocity
   );
   const { handleLaunch, handlePause, handleContinue, handleReset } =
     useGameAreaControls(
@@ -75,12 +96,15 @@ export const GameArea: React.FC<GameAreaProps> = ({
       velocity,
       setDartState,
       setDartPosition,
-      setDartVelocity
+      setDartVelocity,
+      setMonkeyState,
+      setMonkeyPosition,
+      setMonkeyVelocity
     );
 
   return (
     <>
-      <div className="flex justify-center gap-4">
+      <div className="flex justify-center gap-4 mb-4">
         <button className="btn" onClick={handleReset}>
           Reset
         </button>
@@ -102,7 +126,7 @@ export const GameArea: React.FC<GameAreaProps> = ({
       </div>
       <div className="flex justify-center">
         <div
-          className="relative"
+          className="relative border border-green-700 border-dashed"
           style={{
             height: GAME_AREA_POSITIONS.height,
             width: GAME_AREA_POSITIONS.width,
@@ -127,6 +151,11 @@ export const GameArea: React.FC<GameAreaProps> = ({
           ></canvas>
         </div>
       </div>
+      {JSON.stringify(dartPosition)}
+      {JSON.stringify(dartVelocity)}
+      <hr />
+      {JSON.stringify(monkeyPosition)}
+      {JSON.stringify(monkeyVelocity)}
     </>
   );
 };

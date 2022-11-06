@@ -6,6 +6,7 @@ export const useGameCanvas = (
   canvasRef: React.MutableRefObject<HTMLCanvasElement | null>,
   launchAngle: number,
   dartPosition: Position,
+  monkeyPosition: Position,
   showDart: boolean
 ) => {
   useEffect(() => {
@@ -34,8 +35,18 @@ export const useGameCanvas = (
     const drawHunter = (context: CanvasRenderingContext2D) => {
       context.save();
       context.fillStyle = "#FFE9A7";
-      context.fillRect(50, GAME_AREA_POSITIONS.hunterY, 50, 100);
-      context.strokeRect(50, GAME_AREA_POSITIONS.hunterY, 50, 100);
+      context.fillRect(
+        GAME_AREA_POSITIONS.hunterX,
+        GAME_AREA_POSITIONS.hunterY,
+        -50,
+        100
+      );
+      context.strokeRect(
+        GAME_AREA_POSITIONS.hunterX,
+        GAME_AREA_POSITIONS.hunterY,
+        -50,
+        100
+      );
       context.restore();
     };
 
@@ -54,7 +65,26 @@ export const useGameCanvas = (
     const drawTree = (context: CanvasRenderingContext2D) => {
       context.save();
       context.fillStyle = "#C68600";
-      context.fillRect(700, 100, 50, GAME_AREA_POSITIONS.height);
+      context.fillRect(700, 180, 50, GAME_AREA_POSITIONS.height);
+      context.restore();
+    };
+
+    const drawTreeLeaves = (context: CanvasRenderingContext2D) => {
+      context.save();
+      context.fillStyle = "#33691e";
+      context.fillRect(640, 140, 160, 60);
+      context.restore();
+    };
+
+    const drawMonkey = (context: CanvasRenderingContext2D) => {
+      context.save();
+      context.translate(
+        GAME_AREA_POSITIONS.hunterX + monkeyPosition.x,
+        GAME_AREA_POSITIONS.hunterY - monkeyPosition.y
+      );
+      context.fillStyle = "#3e2723";
+      // context.fillRect(675, 50, 50, 100);
+      context.fillRect(0, 0, -50, 100);
       context.restore();
     };
 
@@ -62,7 +92,7 @@ export const useGameCanvas = (
       context.save();
       context.translate(
         GAME_AREA_POSITIONS.hunterX + dartPosition.x,
-        GAME_AREA_POSITIONS.hunterY + dartPosition.y
+        GAME_AREA_POSITIONS.hunterY - dartPosition.y
       );
       context.fillStyle = "#959595";
       context.beginPath();
@@ -72,6 +102,8 @@ export const useGameCanvas = (
     };
 
     drawTree(context);
+    drawTreeLeaves(context);
+    drawMonkey(context);
     drawHunter(context);
     drawGround(context);
     if (showDart) {
